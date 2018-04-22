@@ -24,6 +24,8 @@ private slots:
     void on_btn_start_clicked();
     void receiveMessage(const QString &);
 
+    void on_btn_stop_clicked();
+
 private:
     Ui::MainWindow *ui;
 };

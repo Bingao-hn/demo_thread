@@ -2,7 +2,7 @@
 #include <QDebug>
 #include <QProcess>
 #include <QMessageBox>
-
+#include <QRegExp>
 MyThread::MyThread(QObject *parent) :
     QThread(parent)
 {
@@ -26,28 +26,40 @@ void MyThread::run()
     ch=ba.data();
 
     process.start("cmd.exe");
-//    process.write(ch);
-    process.write("dir\n\r");
-    process.write("ipconfig\n\r");
+    process.write(ch);
+//    process.write("dir\n\r");
     process.write("exit\n\r");
-  //   process.execute("exit");
+//   process.execute("exit");
     process.waitForStarted();
     process.waitForFinished();
     QString strResult = QString::fromLocal8Bit(process.readAllStandardOutput());
 
-    emit sendMessage(strResult);
-    qDebug()<<"send";
+    //添加正则表达式处理结果
+    QRegExp rx("_result([\\S\\s]+)result_");
+    QString str = strResult;
+    QStringList list;
+    int pos = 0;
+    rx.setMinimal(true);//设置非贪婪
+    while ((pos = rx.indexIn(str, pos)) != -1) {
+        list << rx.cap(1);
+        pos += rx.matchedLength();
+    }
+//    qDebug()<<"str"<<str;
+    qDebug()<<"list:"<<list;
+    emit sendMessage(list[0]);
+
 }
 
 void MyThread::recvCMD(const QString &cmd)
 {
-    arg_cmd = cmd;
+    QString pwd = "F:/SVM/process/";
+    arg_cmd = "python "+pwd+cmd;
     qDebug()<<cmd;
 }
 
 void MyThread::exit_slot(){
     qDebug()<<"exit";
-    running_process->close();
+//    running_process->close();
     running_process->write("exit\n\r");
     //running_process->start("exit");
 

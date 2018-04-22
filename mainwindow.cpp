@@ -51,3 +51,8 @@ void MainWindow::receiveMessage(const QString &str)
     }
     qDebug()<<"changed";
 }
+
+void MainWindow::on_btn_stop_clicked()
+{
+    recvThread->exit_slot();
+}
